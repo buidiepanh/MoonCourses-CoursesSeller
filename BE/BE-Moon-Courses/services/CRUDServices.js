@@ -71,10 +71,65 @@ const postNewCourse = async (req, res, next) => {
   }
 };
 
+const updateCourse = async (req, res, next) => {
+  try {
+    const result = await Courses.findByIdAndUpdate(
+      req.params.courseId,
+      { $set: req.body },
+      { new: true }
+    );
+
+    if (!result) {
+      res.status(400).json("Cannot update course!");
+      return null;
+    }
+
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+//========================== CATEGORY ====================
+
+const getAllCategories = async (req, res, next) => {
+  try {
+    const result = await Categories.find({});
+
+    if (!result) {
+      res.status(404).json("No categories!");
+      return null;
+    }
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const postNewCategory = async (req, res, next) => {
+  try {
+    const result = await Categories.create(req.body);
+
+    if (!result) {
+      res.status(400).json("Cannot add category!");
+      return null;
+    }
+
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getAllUsers,
   postNewUser,
 
   getAllCourses,
   postNewCourse,
+  updateCourse,
+
+  getAllCategories,
+  postNewCategory,
 };
