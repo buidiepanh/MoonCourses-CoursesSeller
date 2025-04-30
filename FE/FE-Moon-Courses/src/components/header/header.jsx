@@ -1,10 +1,12 @@
 import React from "react";
 import { Layout, Menu, Button } from "antd";
 import { LoginOutlined, UserAddOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router";
 
 const { Header: AntHeader } = Layout;
 
 function Header() {
+  const navigation = useNavigate();
   return (
     <AntHeader
       style={{
@@ -32,10 +34,13 @@ function Header() {
         style={{ backgroundColor: "#1890ff" }}
         defaultSelectedKeys={["1"]}
       >
-        <Menu.Item key="1">Home</Menu.Item>
+        <Menu.Item key="1" onClick={() => navigation("/")}>
+          Home
+        </Menu.Item>
         <Menu.Item key="2">Courses</Menu.Item>
-        <Menu.Item key="3">About</Menu.Item>
-        <Menu.Item key="4">Contact</Menu.Item>
+        <Menu.Item key="3">My Courses</Menu.Item>
+        <Menu.Item key="4">About</Menu.Item>
+        <Menu.Item key="5">Contact</Menu.Item>
       </Menu>
 
       <div>
@@ -43,6 +48,7 @@ function Header() {
           type="primary"
           icon={<LoginOutlined />}
           style={{ marginRight: "10px" }}
+          onClick={() => navigation("/login")}
         >
           Log In
         </Button>
