@@ -19,6 +19,20 @@ const getAllUsers = async (req, res, next) => {
   }
 };
 
+const getAuthenticatedUser = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const user = await Users.findById(userId).select("-password");
+
+    if (!user) {
+      return res.status(400).json("Cannot get authenticated user!");
+    }
+    res.status(200).json(user);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const postNewUser = async (req, res, next) => {
   try {
     const result = await Users.create(req.body);
@@ -55,6 +69,7 @@ const postNewCourse = async (req, res, next) => {
   try {
     const result = await Courses.create(req.body);
     const categoryId = req.body.category;
+    const authorId = req.body.author;
 
     if (!result) {
       res.status(400).json("Cannot add course!");
@@ -63,6 +78,9 @@ const postNewCourse = async (req, res, next) => {
 
     await Categories.findByIdAndUpdate(categoryId, {
       $push: { courses: result._id },
+    });
+    await Users.findByIdAndUpdate(authorId, {
+      $push: { createdCourses: result._id },
     });
 
     res.status(200).json(result);
@@ -124,6 +142,7 @@ const postNewCategory = async (req, res, next) => {
 
 module.exports = {
   getAllUsers,
+  getAuthenticatedUser,
   postNewUser,
 
   getAllCourses,
