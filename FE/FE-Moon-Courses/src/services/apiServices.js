@@ -30,3 +30,12 @@ export const getAuthenticatedUser = async () => {
     console.log(error);
   }
 };
+
+export const getAllCourses = async () => {
+  try {
+    const result = await axios.get("/courses");
+    return result.data;
+  } catch (error) {
+    console.log(error);
+  }
+};

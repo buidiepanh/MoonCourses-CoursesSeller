@@ -3,6 +3,7 @@ import Home from "../pages/user/home/home";
 import Header from "../components/header/header";
 import Footer from "../components/footer/footer";
 import Login from "../pages/authen/login/login";
+import Details from "../pages/user/details/details";
 
 function UserRouter() {
   return (
@@ -11,6 +12,7 @@ function UserRouter() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/:courseId" element={<Details />} />
       </Routes>
       <Footer />
     </>
