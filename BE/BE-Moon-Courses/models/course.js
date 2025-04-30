@@ -38,6 +38,10 @@ const courseSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Comments",
     },
+    isPurchased: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
