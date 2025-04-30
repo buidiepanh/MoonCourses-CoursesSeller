@@ -52,7 +52,9 @@ const postNewUser = async (req, res, next) => {
 
 const getAllCourses = async (req, res, next) => {
   try {
-    const result = await Courses.find({});
+    const result = await Courses.find({})
+      .populate("category", "title")
+      .populate("author", "username");
 
     if (!result) {
       res.status(404).json("No courses!");

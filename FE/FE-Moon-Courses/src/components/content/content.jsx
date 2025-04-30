@@ -1,36 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { Layout, Carousel, Row, Col, Card, Rate, Tag } from "antd";
-import { getAllCategories } from "../../services/apiServices";
+import { getAllCategories, getAllCourses } from "../../services/apiServices";
+import image1 from "../../assets/carousel_images/img1.jpg";
+import image2 from "../../assets/carousel_images/img2.jpg";
+import image3 from "../../assets/carousel_images/img3.jpg";
+import { useNavigate } from "react-router";
 
 const { Content } = Layout;
 const { Meta } = Card;
 
-const topCourses = [
-  {
-    id: 1,
-    title: "React JS for Beginners",
-    image: "https://source.unsplash.com/300x200/?technology",
-    rating: 4.8,
-    category: "Front-end",
-  },
-  {
-    id: 2,
-    title: "Node.js & Express Crash Course",
-    image: "https://source.unsplash.com/300x200/?coding",
-    rating: 4.7,
-    category: "Back-end",
-  },
-  {
-    id: 3,
-    title: "Mastering SQL & Database Design",
-    image: "https://source.unsplash.com/300x200/?database",
-    rating: 4.9,
-    category: "Database",
-  },
-];
-
 function HomeContent() {
+  const navigation = useNavigate();
   const [categories, setCategories] = useState([]);
+  const [courses, setCourses] = useState([]);
 
   const fetchAllCategories = async () => {
     try {
@@ -41,16 +23,27 @@ function HomeContent() {
     }
   };
 
+  const fetchAllCourses = async () => {
+    try {
+      const result = await getAllCourses();
+      setCourses(result);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     fetchAllCategories();
+    fetchAllCourses();
   }, []);
+
   return (
     <Content style={{ padding: "20px 50px", background: "#f0f2f5" }}>
       {/* Carousel Section */}
       <Carousel autoplay effect="fade" style={{ marginBottom: "30px" }}>
         <div>
           <img
-            src="https://source.unsplash.com/1200x400/?learning"
+            src={image1}
             alt="Slide 1"
             style={{
               width: "100%",
@@ -62,7 +55,7 @@ function HomeContent() {
         </div>
         <div>
           <img
-            src="https://source.unsplash.com/1200x400/?coding"
+            src={image2}
             alt="Slide 2"
             style={{
               width: "100%",
@@ -74,7 +67,7 @@ function HomeContent() {
         </div>
         <div>
           <img
-            src="https://source.unsplash.com/1200x400/?technology"
+            src={image3}
             alt="Slide 3"
             style={{
               width: "100%",
@@ -110,7 +103,7 @@ function HomeContent() {
         Top Rated Courses
       </h2>
       <Row gutter={[16, 16]}>
-        {topCourses.map((course) => (
+        {courses.map((course) => (
           <Col key={course.id} xs={24} sm={12} md={8}>
             <Card
               hoverable
@@ -122,10 +115,11 @@ function HomeContent() {
                 />
               }
               style={{ borderRadius: "10px", overflow: "hidden" }}
+              onClick={() => navigation(`/${course._id}`)}
             >
               <Meta title={course.title} />
               <div style={{ marginTop: "10px" }}>
-                <Tag color="blue">{course.category}</Tag>
+                <Tag color="blue">{course.category.title}</Tag>
                 <Rate
                   allowHalf
                   disabled
