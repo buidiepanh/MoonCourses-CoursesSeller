@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import {
   Row,
   Col,
@@ -11,8 +11,9 @@ import {
   Spin,
   Button,
 } from "antd";
-import { getAllCourses } from "../../../services/apiServices";
+import { getAllCourses, paymentFunction } from "../../../services/apiServices";
 import { DollarOutlined, UserOutlined, BookOutlined } from "@ant-design/icons";
+import toast from "react-hot-toast";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -20,6 +21,7 @@ function Details() {
   const { courseId } = useParams();
   const [course, setCourse] = useState();
   const [loading, setLoading] = useState(true);
+  const navigation = useNavigate();
 
   const fetchSelectCourse = async () => {
     try {
@@ -30,6 +32,20 @@ function Details() {
     } catch (error) {
       console.log(error);
       setLoading(false);
+    }
+  };
+
+  const handlePurchase = async (price) => {
+    if (!sessionStorage.getItem("token")) {
+      navigation("/login");
+      toast.error("Please login before purchasing!");
+    } else {
+      try {
+        const resutl = await paymentFunction(price);
+        window.location.href = resutl.url;
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
@@ -95,6 +111,7 @@ function Details() {
             type="primary"
             size="large"
             style={{ backgroundColor: "#1677ff" }}
+            onClick={() => handlePurchase(course.price)}
           >
             Enroll Now
           </Button>
