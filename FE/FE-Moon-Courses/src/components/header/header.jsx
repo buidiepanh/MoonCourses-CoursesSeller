@@ -52,7 +52,9 @@ function Header() {
           fontSize: "24px",
           fontWeight: "bold",
           letterSpacing: "1px",
+          cursor: "pointer",
         }}
+        onClick={() => navigation("/")}
       >
         Moon Course
       </div>
