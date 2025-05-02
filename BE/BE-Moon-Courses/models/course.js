@@ -34,10 +34,12 @@ const courseSchema = new Schema(
       ref: "Users",
       required: true,
     },
-    comments: {
-      type: Schema.Types.ObjectId,
-      ref: "Comments",
-    },
+    comments: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Comments",
+      },
+    ],
     isPurchased: {
       type: Boolean,
       default: false,
