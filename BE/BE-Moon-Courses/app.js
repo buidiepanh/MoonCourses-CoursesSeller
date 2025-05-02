@@ -11,6 +11,7 @@ var courseRouter = require("./routes/courseRouter");
 var categoryRouter = require("./routes/categoryRouter");
 var authenRouter = require("./routes/authenRouter");
 var paymentRouter = require("./routes/paymentRouter");
+var commentRouter = require("./routes/commentRouter");
 
 var app = express();
 app.use(cors());
@@ -31,6 +32,7 @@ app.use("/courses", courseRouter);
 app.use("/categories", categoryRouter);
 app.use("/authen", authenRouter);
 app.use("/payment", paymentRouter);
+app.use("/comments", commentRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

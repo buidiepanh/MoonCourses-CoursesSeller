@@ -8,11 +8,13 @@ const {
   getAllUsers,
   postNewUser,
   getAuthenticatedUser,
+  getAuthorById,
 } = require("../services/CRUDServices");
 const authenticate = require("../middleware/authenticate");
 
 userRouter.all("*", authenticate);
 userRouter.route("/").get(getAllUsers).post(postNewUser);
+userRouter.route("/author").get(getAuthorById);
 userRouter.route("/authenticated-user").get(getAuthenticatedUser);
 
 module.exports = userRouter;

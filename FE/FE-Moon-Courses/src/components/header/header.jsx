@@ -34,7 +34,7 @@ function Header() {
 
   useEffect(() => {
     fetchAuthenticatedUser();
-  }, []);
+  }, [token]);
 
   return (
     <AntHeader
@@ -69,7 +69,9 @@ function Header() {
           Home
         </Menu.Item>
         <Menu.Item key="2">Courses</Menu.Item>
-        <Menu.Item key="3">My Courses</Menu.Item>
+        <Menu.Item key="3" onClick={() => navigation("/my-course")}>
+          My Courses
+        </Menu.Item>
         <Menu.Item key="4">About</Menu.Item>
         <Menu.Item key="5">Contact</Menu.Item>
       </Menu>
