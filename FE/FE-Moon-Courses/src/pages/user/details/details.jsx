@@ -10,30 +10,62 @@ import {
   Divider,
   Spin,
   Button,
+  Form,
+  Input,
+  List,
+  Avatar,
+  Tooltip,
+  Space,
 } from "antd";
-import { getAllCourses, paymentFunction } from "../../../services/apiServices";
-import { DollarOutlined, UserOutlined, BookOutlined } from "@ant-design/icons";
+import {
+  getAllCourses,
+  getCommentsByCourseId,
+  paymentFunction,
+} from "../../../services/apiServices";
+import {
+  DollarOutlined,
+  UserOutlined,
+  BookOutlined,
+  LikeOutlined,
+  LikeFilled,
+} from "@ant-design/icons";
 import toast from "react-hot-toast";
+import dayjs from "dayjs";
 
 const { Title, Text, Paragraph } = Typography;
+const { TextArea } = Input;
 
 function Details() {
   const { courseId } = useParams();
   const [course, setCourse] = useState();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [comments, setComments] = useState([]);
+  const [commentForm] = Form.useForm();
+  const [submitting, setSubmitting] = useState(false);
   const navigation = useNavigate();
 
   const fetchSelectCourse = async () => {
+    setLoading(true);
     try {
       const result = await getAllCourses();
       const select = result.find((item) => item._id === courseId);
       setCourse(select);
-      setLoading(false);
     } catch (error) {
       console.log(error);
-      setLoading(false);
+    }
+    setLoading(false);
+  };
+
+  const fetchCourseComments = async () => {
+    try {
+      const result = await getCommentsByCourseId(courseId);
+      setComments(result);
+    } catch (error) {
+      console.log(error);
     }
   };
+
+  console.log(comments);
 
   const handlePurchase = async (price) => {
     if (!sessionStorage.getItem("token")) {
@@ -49,8 +81,64 @@ function Details() {
     }
   };
 
+  const handleCommentSubmit = () => {
+    if (!sessionStorage.getItem("token")) {
+      navigation("/login");
+      toast.error("Please login before commenting!");
+      return;
+    }
+
+    setSubmitting(true);
+
+    commentForm
+      .validateFields()
+      .then((values) => {
+        // In a real app, you would send this to your API
+        const newComment = {
+          id: Date.now().toString(),
+          author: "Current User", // In a real app, get from user profile
+          avatar: "https://joeschmoe.io/api/v1/random",
+          content: values.comment,
+          likes: 0,
+          liked: false,
+          datetime: new Date().toLocaleString(),
+        };
+
+        setComments([newComment, ...comments]);
+        setSubmitting(false);
+        commentForm.resetFields();
+        toast.success("Comment posted successfully!");
+      })
+      .catch(() => {
+        setSubmitting(false);
+      });
+  };
+
+  const handleLike = (commentId) => {
+    if (!sessionStorage.getItem("token")) {
+      navigation("/login");
+      toast.error("Please login before liking comments!");
+      return;
+    }
+
+    setComments(
+      comments.map((comment) => {
+        if (comment.id === commentId) {
+          const liked = !comment.liked;
+          return {
+            ...comment,
+            likes: liked ? comment.likes + 1 : comment.likes - 1,
+            liked: liked,
+          };
+        }
+        return comment;
+      })
+    );
+  };
+
   useEffect(() => {
     fetchSelectCourse();
+    fetchCourseComments();
   }, []);
 
   if (loading || !course) {
@@ -128,6 +216,82 @@ function Details() {
           <Paragraph style={{ fontSize: 16, lineHeight: 1.7 }}>
             {course.description || "No description available."}
           </Paragraph>
+        </Col>
+      </Row>
+
+      <Divider />
+
+      {/* Comments Section */}
+      <Row>
+        <Col span={24}>
+          <Title level={4} style={{ color: "#1677ff" }}>
+            Comments
+          </Title>
+
+          {/* Comment Form */}
+          <Form form={commentForm} onFinish={handleCommentSubmit}>
+            <Form.Item
+              name="comment"
+              rules={[
+                { required: true, message: "Please write your comment!" },
+              ]}
+            >
+              <TextArea rows={4} placeholder="Write your comment here..." />
+            </Form.Item>
+            <Form.Item>
+              <Button
+                htmlType="submit"
+                type="primary"
+                loading={submitting}
+                style={{ backgroundColor: "#1677ff" }}
+              >
+                Post Comment
+              </Button>
+            </Form.Item>
+          </Form>
+
+          {/* Comments List */}
+          <List
+            className="comment-list"
+            itemLayout="horizontal"
+            dataSource={comments}
+            renderItem={(comment) => (
+              <List.Item
+                actions={[
+                  <Tooltip key="comment-like" title="Like">
+                    <span onClick={() => handleLike(comment._id)}>
+                      {comment.liked ? <LikeFilled /> : <LikeOutlined />}
+                      <span style={{ marginLeft: 8 }}>{comment.likes}</span>
+                    </span>
+                  </Tooltip>,
+                ]}
+              >
+                <List.Item.Meta
+                  avatar={
+                    <Avatar
+                      src={comment.avatar}
+                      alt={comment.author.username}
+                    />
+                  }
+                  title={
+                    <Space>
+                      <Text strong>{comment.author.username}</Text>
+                      <Tooltip
+                        title={dayjs(comment.updatedAt).format(
+                          "YYYY-MM-DD HH:mm:ss"
+                        )}
+                      >
+                        <Text type="secondary" style={{ fontSize: "12px" }}>
+                          {dayjs(comment.updatedAt).format("DD/MM/YYYY HH:mm")}
+                        </Text>
+                      </Tooltip>
+                    </Space>
+                  }
+                  description={<p>{comment.content}</p>}
+                />
+              </List.Item>
+            )}
+          />
         </Col>
       </Row>
     </div>

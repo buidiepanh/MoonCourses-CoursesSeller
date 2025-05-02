@@ -72,3 +72,12 @@ export const paymentCallback = async (url) => {
     console.log(error);
   }
 };
+
+export const getCommentsByCourseId = async (id) => {
+  try {
+    const result = await axios.get(`/comments?courseId=${id}`);
+    return result.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
