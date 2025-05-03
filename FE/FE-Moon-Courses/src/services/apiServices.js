@@ -44,6 +44,15 @@ export const getAuthenticatedUser = async () => {
   }
 };
 
+export const getAllUsers = async () => {
+  try {
+    const result = await axios.get("/users");
+    return result.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const getAllCourses = async () => {
   try {
     const result = await axios.get("/courses");
