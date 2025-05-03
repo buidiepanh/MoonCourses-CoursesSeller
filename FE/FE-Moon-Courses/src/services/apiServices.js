@@ -81,3 +81,26 @@ export const getCommentsByCourseId = async (id) => {
     console.log(error);
   }
 };
+
+export const updateCommentLikes = async (commentId, alreadyLiked) => {
+  try {
+    const result = await axios.put(`/comments/${commentId}`, {
+      liked: alreadyLiked,
+    });
+    return result.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const postComment = async (courseId, content) => {
+  try {
+    const result = await axios.post("/comments", {
+      content: content,
+      course: courseId,
+    });
+    return result.data;
+  } catch (error) {
+    console.log(error);
+  }
+};

@@ -21,6 +21,8 @@ import {
   getAllCourses,
   getCommentsByCourseId,
   paymentFunction,
+  postComment,
+  updateCommentLikes,
 } from "../../../services/apiServices";
 import {
   DollarOutlined,
@@ -28,6 +30,7 @@ import {
   BookOutlined,
   LikeOutlined,
   LikeFilled,
+  CommentOutlined,
 } from "@ant-design/icons";
 import toast from "react-hot-toast";
 import dayjs from "dayjs";
@@ -40,6 +43,7 @@ function Details() {
   const [course, setCourse] = useState();
   const [loading, setLoading] = useState(false);
   const [comments, setComments] = useState([]);
+  const [liked, setLiked] = useState(false);
   const [commentForm] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
   const navigation = useNavigate();
@@ -65,8 +69,6 @@ function Details() {
     }
   };
 
-  console.log(comments);
-
   const handlePurchase = async (price) => {
     if (!sessionStorage.getItem("token")) {
       navigation("/login");
@@ -81,7 +83,7 @@ function Details() {
     }
   };
 
-  const handleCommentSubmit = () => {
+  const handleCommentSubmit = async () => {
     if (!sessionStorage.getItem("token")) {
       navigation("/login");
       toast.error("Please login before commenting!");
@@ -89,51 +91,52 @@ function Details() {
     }
 
     setSubmitting(true);
+    try {
+      const values = await commentForm.validateFields();
+      const result = await postComment(courseId, values.content);
 
-    commentForm
-      .validateFields()
-      .then((values) => {
-        // In a real app, you would send this to your API
-        const newComment = {
-          id: Date.now().toString(),
-          author: "Current User", // In a real app, get from user profile
-          avatar: "https://joeschmoe.io/api/v1/random",
-          content: values.comment,
-          likes: 0,
-          liked: false,
-          datetime: new Date().toLocaleString(),
-        };
-
-        setComments([newComment, ...comments]);
-        setSubmitting(false);
-        commentForm.resetFields();
-        toast.success("Comment posted successfully!");
-      })
-      .catch(() => {
-        setSubmitting(false);
-      });
+      if (!result) {
+        toast.error("Cannot post comment on this course!");
+      } else {
+        toast.success("Post comment success!");
+        fetchCourseComments();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    setSubmitting(false);
   };
 
-  const handleLike = (commentId) => {
+  const handleLike = async (commentId) => {
     if (!sessionStorage.getItem("token")) {
       navigation("/login");
       toast.error("Please login before liking comments!");
       return;
     }
 
-    setComments(
-      comments.map((comment) => {
-        if (comment.id === commentId) {
-          const liked = !comment.liked;
-          return {
-            ...comment,
-            likes: liked ? comment.likes + 1 : comment.likes - 1,
-            liked: liked,
-          };
-        }
-        return comment;
-      })
-    );
+    const alreadyLiked = liked[commentId];
+
+    if (alreadyLiked) {
+      const result = await updateCommentLikes(commentId, alreadyLiked);
+      setLiked((prev) => ({
+        ...prev,
+        [commentId]: false,
+      }));
+    } else {
+      const result = await updateCommentLikes(commentId, alreadyLiked);
+
+      if (!result) {
+        toast.error("Cannot like this comment! Please try again.");
+      } else {
+        toast.success("Comment liked!");
+      }
+
+      setLiked((prev) => ({
+        ...prev,
+        [commentId]: true,
+      }));
+    }
+    fetchCourseComments();
   };
 
   useEffect(() => {
@@ -231,7 +234,7 @@ function Details() {
           {/* Comment Form */}
           <Form form={commentForm} onFinish={handleCommentSubmit}>
             <Form.Item
-              name="comment"
+              name="content"
               rules={[
                 { required: true, message: "Please write your comment!" },
               ]}
@@ -251,47 +254,72 @@ function Details() {
           </Form>
 
           {/* Comments List */}
-          <List
-            className="comment-list"
-            itemLayout="horizontal"
-            dataSource={comments}
-            renderItem={(comment) => (
-              <List.Item
-                actions={[
-                  <Tooltip key="comment-like" title="Like">
-                    <span onClick={() => handleLike(comment._id)}>
-                      {comment.liked ? <LikeFilled /> : <LikeOutlined />}
-                      <span style={{ marginLeft: 8 }}>{comment.likes}</span>
-                    </span>
-                  </Tooltip>,
-                ]}
-              >
-                <List.Item.Meta
-                  avatar={
-                    <Avatar
-                      src={comment.avatar}
-                      alt={comment.author.username}
-                    />
-                  }
-                  title={
-                    <Space>
-                      <Text strong>{comment.author.username}</Text>
-                      <Tooltip
-                        title={dayjs(comment.updatedAt).format(
-                          "YYYY-MM-DD HH:mm:ss"
-                        )}
-                      >
-                        <Text type="secondary" style={{ fontSize: "12px" }}>
-                          {dayjs(comment.updatedAt).format("DD/MM/YYYY HH:mm")}
-                        </Text>
-                      </Tooltip>
-                    </Space>
-                  }
-                  description={<p>{comment.content}</p>}
-                />
-              </List.Item>
-            )}
-          />
+
+          {comments.length === 0 ? (
+            <div
+              style={{
+                textAlign: "center",
+                padding: "40px 20px",
+                backgroundColor: "#fff",
+                borderRadius: 8,
+                border: "1px dashed #d9d9d9",
+              }}
+            >
+              <CommentOutlined
+                style={{ fontSize: 48, color: "#1677ff", marginBottom: 16 }}
+              />
+              <Title level={4} type="secondary">
+                No comment yet
+              </Title>
+              <Text type="secondary">
+                Feel free to give the author your opinion!
+              </Text>
+            </div>
+          ) : (
+            <List
+              className="comment-list"
+              itemLayout="horizontal"
+              dataSource={comments}
+              renderItem={(comment) => (
+                <List.Item
+                  actions={[
+                    <Tooltip key="comment-like" title="Like">
+                      <span onClick={() => handleLike(comment._id)}>
+                        {liked[comment._id] ? <LikeFilled /> : <LikeOutlined />}
+                        <span style={{ marginLeft: 8 }}>{comment.likes}</span>
+                      </span>
+                    </Tooltip>,
+                  ]}
+                >
+                  <List.Item.Meta
+                    avatar={
+                      <Avatar
+                        src={comment.avatar}
+                        alt={comment.author.username}
+                      />
+                    }
+                    title={
+                      <Space>
+                        <Text strong>{comment.author.username}</Text>
+                        <Tooltip
+                          title={dayjs(comment.updatedAt).format(
+                            "YYYY-MM-DD HH:mm:ss"
+                          )}
+                        >
+                          <Text type="secondary" style={{ fontSize: "12px" }}>
+                            {dayjs(comment.updatedAt).format(
+                              "DD/MM/YYYY HH:mm"
+                            )}
+                          </Text>
+                        </Tooltip>
+                      </Space>
+                    }
+                    description={<p>{comment.content}</p>}
+                  />
+                </List.Item>
+              )}
+            />
+          )}
         </Col>
       </Row>
     </div>
