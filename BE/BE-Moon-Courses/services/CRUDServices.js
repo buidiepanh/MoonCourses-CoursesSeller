@@ -182,7 +182,11 @@ const getAllCommentsByCourse = async (req, res, next) => {
 
 const postNewComment = async (req, res, next) => {
   try {
-    const result = await Comments.create(req.body);
+    const result = await Comments.create({
+      course: req.body.course,
+      author: req.user._id,
+      content: req.body.content,
+    });
     const courseId = req.body.course;
 
     if (!result) {
@@ -196,6 +200,37 @@ const postNewComment = async (req, res, next) => {
     res.status(200).json(result);
   } catch (error) {
     console.log(error);
+  }
+};
+
+const updateCommentLikes = async (req, res, next) => {
+  try {
+    const commentId = req.params.commentId;
+    const liked = req.body.liked === true;
+    var result = {};
+
+    if (liked) {
+      result = await Comments.findByIdAndUpdate(
+        commentId,
+        { $inc: { likes: -1 } },
+        { new: true }
+      );
+    } else {
+      result = await Comments.findByIdAndUpdate(
+        commentId,
+        { $inc: { likes: 1 } },
+        { new: true }
+      );
+    }
+
+    if (!result) {
+      res.status(400).json("Cannot update comment's likes!");
+      return null;
+    }
+
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
   }
 };
 
@@ -214,4 +249,5 @@ module.exports = {
 
   getAllCommentsByCourse,
   postNewComment,
+  updateCommentLikes,
 };
