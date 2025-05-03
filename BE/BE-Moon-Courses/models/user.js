@@ -19,6 +19,20 @@ const userSchema = new Schema(
       type: String,
       default: "USER",
     },
+    createdCourses: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Courses",
+        default: [],
+      },
+    ],
+    purchasedCourses: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Courses",
+        default: [],
+      },
+    ],
   },
   { timestamps: true }
 );
