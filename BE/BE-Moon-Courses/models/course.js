@@ -44,6 +44,13 @@ const courseSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    contents: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Contents",
+        required: true,
+      },
+    ],
   },
   {
     timestamps: true,

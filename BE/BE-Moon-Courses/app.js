@@ -12,6 +12,7 @@ var categoryRouter = require("./routes/categoryRouter");
 var authenRouter = require("./routes/authenRouter");
 var paymentRouter = require("./routes/paymentRouter");
 var commentRouter = require("./routes/commentRouter");
+var contentRouter = require("./routes/contentRouter");
 
 var app = express();
 app.use(cors());
@@ -33,6 +34,7 @@ app.use("/categories", categoryRouter);
 app.use("/authen", authenRouter);
 app.use("/payment", paymentRouter);
 app.use("/comments", commentRouter);
+app.use("/contents", contentRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
