@@ -5,11 +5,13 @@ import {
   getAllUsers,
   getAuthenticatedUser,
 } from "../../../services/apiServices";
+import { useNavigate } from "react-router";
 
 const { Title, Paragraph, Text } = Typography;
 
 function MyCourse() {
   const [courses, setCourses] = useState([]);
+  const navigation = useNavigate();
 
   const getUserCourse = async () => {
     try {
@@ -49,6 +51,7 @@ function MyCourse() {
           <Col span={24} key={course._id}>
             <Card
               hoverable
+              onClick={() => navigation(`/learning/${course._id}`)}
               style={{
                 display: "flex",
                 backgroundColor: "#ffffff",

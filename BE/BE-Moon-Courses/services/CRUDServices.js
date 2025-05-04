@@ -2,6 +2,7 @@ const Users = require("../models/user");
 const Courses = require("../models/course");
 const Categories = require("../models/category");
 const Comments = require("../models/comment");
+const Contents = require("../models/content");
 
 //========================= USER =====================
 
@@ -72,7 +73,8 @@ const getAllCourses = async (req, res, next) => {
     const result = await Courses.find({})
       .populate("category", "title")
       .populate("author", "username")
-      .populate("comments", "-course");
+      .populate("comments", "-course")
+      .populate("contents", "-course");
 
     if (!result) {
       res.status(404).json("No courses!");
@@ -234,6 +236,43 @@ const updateCommentLikes = async (req, res, next) => {
   }
 };
 
+//=========================== COURSE CONTENT =================
+
+const getAllCourseContent = async (req, res, next) => {
+  try {
+    const courseId = req.body.courseId;
+    const result = await Contents.find({ course: courseId });
+
+    if (!result) {
+      res.status(404).json("No content!");
+      return null;
+    }
+
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const postNewContent = async (req, res, next) => {
+  try {
+    const result = await Contents.create(req.body);
+    const courseId = req.body.course;
+
+    if (!result) {
+      res.status(400).json("Cannot add comment!");
+      return null;
+    }
+
+    await Courses.findByIdAndUpdate(courseId, {
+      $push: { contents: result._id },
+    });
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getAllUsers,
   getAuthenticatedUser,
@@ -250,4 +289,7 @@ module.exports = {
   getAllCommentsByCourse,
   postNewComment,
   updateCommentLikes,
+
+  getAllCourseContent,
+  postNewContent,
 };
