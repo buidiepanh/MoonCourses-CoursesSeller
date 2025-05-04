@@ -98,7 +98,7 @@ function Details() {
         }
       }
     } else {
-      navigation("/");
+      navigation(`/learning/${courseId}`);
     }
   };
 
@@ -119,6 +119,7 @@ function Details() {
       } else {
         toast.success("Post comment success!");
         fetchCourseComments();
+        commentForm.resetFields();
       }
     } catch (error) {
       console.log(error);
