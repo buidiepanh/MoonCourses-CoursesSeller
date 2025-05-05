@@ -66,6 +66,26 @@ const postNewUser = async (req, res, next) => {
   }
 };
 
+const updateUser = async (req, res, next) => {
+  try {
+    const id = req.params.userId;
+    const result = await Users.findByIdAndUpdate(
+      id,
+      { $set: req.body },
+      { new: true }
+    );
+
+    if (!result) {
+      res.status(400).json("Cannot update user!");
+      return null;
+    }
+
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 //========================= COURSES ====================
 
 const getAllCourses = async (req, res, next) => {
@@ -278,6 +298,7 @@ module.exports = {
   getAuthenticatedUser,
   getAuthorById,
   postNewUser,
+  updateUser,
 
   getAllCourses,
   postNewCourse,

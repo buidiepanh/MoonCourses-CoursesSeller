@@ -17,26 +17,6 @@ import dayjs from "dayjs";
 const { Title, Paragraph, Text } = Typography;
 const { Sider, Content } = Layout;
 
-const mockCourses = [
-  {
-    _id: "1",
-    title: "Mastering Angular",
-    image:
-      "https://miro.medium.com/v2/resize:fit:1200/format:webp/1*6kRrK2ExnK7wZ1z6isCyyA.png",
-    description:
-      "A complete Angular course covering components, routing, and RxJS.",
-    author: "Jane Doe",
-    rating: 4.8,
-    comments: 12,
-    category: "Frontend",
-    contents: [
-      { title: "Introduction to Angular", content: "Welcome to Angular!" },
-      { title: "Components and Templates", content: "Learn about components." },
-      { title: "Routing in Angular", content: "Let's set up routes." },
-    ],
-  },
-];
-
 function Learning() {
   const { courseId } = useParams();
   const [course, setCourse] = useState(null);
@@ -66,8 +46,8 @@ function Learning() {
   }
 
   const selectedLesson = course.contents[selectedLessonIndex];
-  const videoUrl = selectedLesson.video
-    ? selectedLesson.video.replace("watch?v=", "embed/")
+  const videoUrl = selectedLesson?.video
+    ? selectedLesson?.video.replace("watch?v=", "embed/")
     : "";
 
   return (
@@ -113,12 +93,12 @@ function Learning() {
           }}
         >
           <Title level={3} style={{ color: "#1677ff" }}>
-            {selectedLesson.title}
+            {selectedLesson?.title}
           </Title>
 
           <Text type="secondary">
             Last updated:{" "}
-            {dayjs(selectedLesson.updatedAt).format("MMMM D, YYYY")}
+            {dayjs(selectedLesson?.updatedAt).format("MMMM D, YYYY")}
           </Text>
 
           <Divider />
@@ -129,7 +109,7 @@ function Learning() {
             style={{ marginBottom: 24, backgroundColor: "#f9fbff" }}
           >
             <Paragraph style={{ fontSize: "16px", lineHeight: 1.75 }}>
-              {selectedLesson.theory}
+              {selectedLesson?.theory}
             </Paragraph>
           </Card>
 
