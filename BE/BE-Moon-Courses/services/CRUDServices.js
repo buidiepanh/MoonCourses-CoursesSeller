@@ -26,7 +26,8 @@ const getAuthenticatedUser = async (req, res, next) => {
     const userId = req.user._id;
     const user = await Users.findById(userId)
       .select("-password")
-      .populate("purchasedCourses");
+      .populate("purchasedCourses")
+      .populate("createdCourses", "-author");
 
     if (!user) {
       return res.status(400).json("Cannot get authenticated user!");
