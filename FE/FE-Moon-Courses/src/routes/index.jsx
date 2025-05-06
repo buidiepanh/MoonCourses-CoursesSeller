@@ -9,6 +9,7 @@ import PaymentCallback from "../pages/user/payment/paymentCallback";
 import MyCourse from "../pages/user/my-course/myCourse";
 import Learning from "../pages/user/learning-details/learning";
 import Dashboard from "../pages/teacher/dashboard/dashboard";
+import CourseManagement from "../pages/teacher/course-management/courseManagement";
 
 function UserRouter() {
   return (
@@ -43,7 +44,7 @@ export function AppRouter() {
     <>
       <Routes>
         <Route path="/*" element={<UserRouter />} />
-        <Route path="/teacher" element={<DoctorRouter />} />
+        <Route path="/teacher-dashboard" element={<DoctorRouter />} />
       </Routes>
     </>
   );
