@@ -7,6 +7,9 @@ import Details from "../pages/user/details/details";
 import Register from "../pages/authen/register/register";
 import PaymentCallback from "../pages/user/payment/paymentCallback";
 import MyCourse from "../pages/user/my-course/myCourse";
+import Learning from "../pages/user/learning-details/learning";
+import Dashboard from "../pages/teacher/dashboard/dashboard";
+import CourseManagement from "../pages/teacher/course-management/courseManagement";
 
 function UserRouter() {
   return (
@@ -18,9 +21,20 @@ function UserRouter() {
         <Route path="/register" element={<Register />} />
         <Route path="/:courseId" element={<Details />} />
         <Route path="/my-course" element={<MyCourse />} />
+        <Route path="/learning/:courseId" element={<Learning />} />
         <Route path="/payment/vnpay-return" element={<PaymentCallback />} />
       </Routes>
       <Footer />
+    </>
+  );
+}
+
+function DoctorRouter() {
+  return (
+    <>
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+      </Routes>
     </>
   );
 }
@@ -30,6 +44,7 @@ export function AppRouter() {
     <>
       <Routes>
         <Route path="/*" element={<UserRouter />} />
+        <Route path="/teacher-dashboard" element={<DoctorRouter />} />
       </Routes>
     </>
   );

@@ -1,7 +1,10 @@
 import React from "react";
 import { Row, Col, Form, Input, Button, Typography, message } from "antd";
 import { LockOutlined, MailOutlined } from "@ant-design/icons";
-import { loginFunction } from "../../../services/apiServices";
+import {
+  getAuthenticatedUser,
+  loginFunction,
+} from "../../../services/apiServices";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router";
 
@@ -17,7 +20,13 @@ function Login() {
       if (result) {
         toast.success("Login success!");
         sessionStorage.setItem("token", result.accessToken);
-        navigation("/");
+
+        const user = await getAuthenticatedUser();
+        if (user?.role === "USER") {
+          navigation("/");
+        } else if (user?.role === "TEACHER") {
+          navigation("/teacher-dashboard");
+        }
       } else {
         toast.error("Login failed!");
       }

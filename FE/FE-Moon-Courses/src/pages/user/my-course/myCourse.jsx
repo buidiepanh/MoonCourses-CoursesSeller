@@ -1,52 +1,42 @@
 import React, { useEffect, useState } from "react";
 import { Card, Row, Col, Typography, Rate, Avatar } from "antd";
+import {
+  getAllCategories,
+  getAllUsers,
+  getAuthenticatedUser,
+} from "../../../services/apiServices";
+import { useNavigate } from "react-router";
 
 const { Title, Paragraph, Text } = Typography;
 
-const mockCourses = [
-  {
-    _id: "1",
-    title: "Mastering Angular",
-    image:
-      "https://miro.medium.com/v2/resize:fit:1200/format:webp/1*6kRrK2ExnK7wZ1z6isCyyA.png",
-    description:
-      "A complete Angular course covering components, routing, and RxJS.",
-    author: "Jane Doe",
-    rating: 4.8,
-    comments: 12,
-    category: "Frontend",
-  },
-  {
-    _id: "2",
-    title: "React for Beginners",
-    image: "https://reactjs.org/logo-og.png",
-    description: "Learn React from scratch and build modern UIs effortlessly.",
-    author: "John Smith",
-    rating: 4.5,
-    comments: 24,
-    category: "Frontend",
-  },
-  {
-    _id: "3",
-    title: "Node.js Backend Development",
-    image:
-      "https://nodejs.org/static/images/logos/nodejs-new-pantone-black.svg",
-    description: "Build scalable backend APIs using Node.js and Express.",
-    author: "Michael Chan",
-    rating: 4.6,
-    comments: 18,
-    category: "Backend",
-  },
-];
-
 function MyCourse() {
   const [courses, setCourses] = useState([]);
+  const navigation = useNavigate();
+
+  const getUserCourse = async () => {
+    try {
+      const result = await getAuthenticatedUser();
+      const users = await getAllUsers();
+      const categories = await getAllCategories();
+
+      const newCourses = result.purchasedCourses.map((course) => {
+        const author = users.find((user) => user._id === course.author);
+        const category = categories.find((cat) => cat._id === course.category);
+        return {
+          ...course,
+          author: author?.username || "Unknown",
+          category: category?.title || "N/A",
+        };
+      });
+
+      setCourses(newCourses);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
-    // Fake API call
-    setTimeout(() => {
-      setCourses(mockCourses);
-    }, 300);
+    getUserCourse();
   }, []);
 
   return (
@@ -61,6 +51,7 @@ function MyCourse() {
           <Col span={24} key={course._id}>
             <Card
               hoverable
+              onClick={() => navigation(`/learning/${course._id}`)}
               style={{
                 display: "flex",
                 backgroundColor: "#ffffff",
@@ -91,7 +82,9 @@ function MyCourse() {
                   <Avatar size="small">{course.author[0]}</Avatar>
                   <Text>{course.author}</Text>
                   <Rate disabled allowHalf defaultValue={course.rating} />
-                  <Text type="secondary">({course.comments} comments)</Text>
+                  <Text type="secondary">
+                    ({course.comments.length} comments)
+                  </Text>
                 </div>
               </div>
             </Card>

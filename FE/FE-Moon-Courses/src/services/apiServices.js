@@ -44,6 +44,15 @@ export const getAuthenticatedUser = async () => {
   }
 };
 
+export const getAllUsers = async () => {
+  try {
+    const result = await axios.get("/users");
+    return result.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const getAllCourses = async () => {
   try {
     const result = await axios.get("/courses");
@@ -98,6 +107,32 @@ export const postComment = async (courseId, content) => {
     const result = await axios.post("/comments", {
       content: content,
       course: courseId,
+    });
+    return result.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+//=========== TEACHER API =======================
+export const postNewCourse = async (
+  name,
+  pic,
+  des,
+  rate,
+  price,
+  cate,
+  author
+) => {
+  try {
+    const result = await axios.post("/courses", {
+      title: name,
+      image: pic,
+      description: des,
+      rating: rate,
+      price: price,
+      category: cate,
+      author: author,
     });
     return result.data;
   } catch (error) {

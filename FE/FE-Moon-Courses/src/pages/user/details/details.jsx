@@ -19,6 +19,7 @@ import {
 } from "antd";
 import {
   getAllCourses,
+  getAuthenticatedUser,
   getCommentsByCourseId,
   paymentFunction,
   postComment,
@@ -46,7 +47,21 @@ function Details() {
   const [liked, setLiked] = useState(false);
   const [commentForm] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
+  const [alreadyBought, setAlreadyBought] = useState(false);
   const navigation = useNavigate();
+
+  const fetchAuthenUser = async () => {
+    try {
+      const result = await getAuthenticatedUser();
+      if (result.purchasedCourses.find((item) => item._id === courseId)) {
+        setAlreadyBought(true);
+      } else {
+        setAlreadyBought(false);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const fetchSelectCourse = async () => {
     setLoading(true);
@@ -70,16 +85,20 @@ function Details() {
   };
 
   const handlePurchase = async (price) => {
-    if (!sessionStorage.getItem("token")) {
-      navigation("/login");
-      toast.error("Please login before purchasing!");
-    } else {
-      try {
-        const resutl = await paymentFunction(price);
-        window.location.href = resutl.url;
-      } catch (error) {
-        console.log(error);
+    if (!alreadyBought) {
+      if (!sessionStorage.getItem("token")) {
+        navigation("/login");
+        toast.error("Please login before purchasing!");
+      } else {
+        try {
+          const resutl = await paymentFunction(price);
+          window.location.href = resutl.url;
+        } catch (error) {
+          console.log(error);
+        }
       }
+    } else {
+      navigation(`/learning/${courseId}`);
     }
   };
 
@@ -100,6 +119,7 @@ function Details() {
       } else {
         toast.success("Post comment success!");
         fetchCourseComments();
+        commentForm.resetFields();
       }
     } catch (error) {
       console.log(error);
@@ -140,6 +160,7 @@ function Details() {
   };
 
   useEffect(() => {
+    fetchAuthenUser();
     fetchSelectCourse();
     fetchCourseComments();
   }, []);
@@ -204,7 +225,7 @@ function Details() {
             style={{ backgroundColor: "#1677ff" }}
             onClick={() => handlePurchase(course.price)}
           >
-            Enroll Now
+            {alreadyBought ? "Go to course" : "Enroll Now"}
           </Button>
         </Col>
       </Row>
