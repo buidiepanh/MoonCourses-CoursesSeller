@@ -113,3 +113,29 @@ export const postComment = async (courseId, content) => {
     console.log(error);
   }
 };
+
+//=========== TEACHER API =======================
+export const postNewCourse = async (
+  name,
+  pic,
+  des,
+  rate,
+  price,
+  cate,
+  author
+) => {
+  try {
+    const result = await axios.post("/courses", {
+      title: name,
+      image: pic,
+      description: des,
+      rating: rate,
+      price: price,
+      category: cate,
+      author: author,
+    });
+    return result.data;
+  } catch (error) {
+    console.log(error);
+  }
+};

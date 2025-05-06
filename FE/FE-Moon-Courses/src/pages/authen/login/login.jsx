@@ -25,7 +25,7 @@ function Login() {
         if (user?.role === "USER") {
           navigation("/");
         } else if (user?.role === "TEACHER") {
-          navigation("/teacher");
+          navigation("/teacher-dashboard");
         }
       } else {
         toast.error("Login failed!");
