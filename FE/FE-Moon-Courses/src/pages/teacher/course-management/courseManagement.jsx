@@ -12,9 +12,11 @@ import {
 } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import {
+  deleteCourse,
   getAllCategories,
   getAuthenticatedUser,
   postNewCourse,
+  updateCourse,
 } from "../../../services/apiServices";
 import toast from "react-hot-toast";
 
@@ -26,11 +28,19 @@ const CourseManagement = () => {
   const [teacherId, setTeacherId] = useState("");
   const [courses, setCourses] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [isUpdate, setIsUpdate] = useState(false);
+  const [curCourse, setCurCourse] = useState(null);
   const [form] = Form.useForm();
 
   const showModal = () => {
     form.resetFields();
     setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setIsUpdate(false);
+    setCurCourse(null);
   };
 
   const fetchCreatedCourses = async () => {
@@ -57,7 +67,7 @@ const CourseManagement = () => {
     fetchCreatedCourses();
   }, []);
 
-  const handleAddCourse = async () => {
+  const handleAddNewCourse = async () => {
     try {
       const { title, image, description, rating, price, category } =
         form.getFieldValue();
@@ -73,25 +83,68 @@ const CourseManagement = () => {
 
       if (result) {
         toast.success("Add new course success!");
-        setIsModalOpen(false);
         fetchCreatedCourses();
       } else {
         toast.error("Add new course failed!");
-        setIsModalOpen(false);
       }
     } catch (error) {
       console.log(error);
     }
   };
 
-  const handleDelete = (key) => {
-    setCourses(courses.filter((course) => course.key !== key));
-  };
-
   const handleUpdate = (record) => {
     form.setFieldsValue(record);
     setIsModalOpen(true);
-    // Optional: Add update logic if needed
+    setCurCourse(record);
+    setIsUpdate(true);
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const result = await deleteCourse(id);
+
+      if (!result) {
+        toast.error("Delete course failed!");
+      } else {
+        toast.success("Delete course success!");
+      }
+
+      fetchCreatedCourses();
+      closeModal();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleSubmit = async () => {
+    const values = form.getFieldValue();
+    console.log(values);
+    if (!isUpdate) {
+      handleAddNewCourse();
+    } else {
+      try {
+        const result = await updateCourse(
+          curCourse._id,
+          values.title,
+          values.image,
+          values.description,
+          values.rating,
+          values.price,
+          values.category
+        );
+
+        if (result) {
+          toast.success("Update course success!");
+          fetchCreatedCourses();
+        } else {
+          toast.error("Update course failed!");
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    closeModal();
   };
 
   const columns = [
@@ -121,6 +174,7 @@ const CourseManagement = () => {
     {
       title: "Price (VND)",
       dataIndex: "price",
+      render: (price) => price?.toLocaleString("vi-VN"),
     },
     {
       title: "Category",
@@ -142,7 +196,7 @@ const CourseManagement = () => {
           />
           <Button
             icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record.key)}
+            onClick={() => handleDelete(record._id)}
             type="link"
             danger
           />
@@ -169,10 +223,10 @@ const CourseManagement = () => {
       <Table columns={columns} dataSource={courses} bordered />
 
       <Modal
-        title="Add New Course"
+        title={isUpdate ? "Update course" : "Add New Course"}
         visible={isModalOpen}
-        onCancel={() => setIsModalOpen(false)}
-        onOk={handleAddCourse}
+        onCancel={closeModal}
+        onOk={handleSubmit}
         okText="Save"
       >
         <Form layout="vertical" form={form}>

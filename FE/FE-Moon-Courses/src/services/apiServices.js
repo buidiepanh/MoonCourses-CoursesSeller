@@ -139,3 +139,36 @@ export const postNewCourse = async (
     console.log(error);
   }
 };
+
+export const updateCourse = async (
+  courseId,
+  name,
+  pic,
+  des,
+  rate,
+  price,
+  cate
+) => {
+  try {
+    const result = await axios.put(`/courses/${courseId}`, {
+      title: name,
+      image: pic,
+      description: des,
+      rating: rate,
+      price: price,
+      category: cate,
+    });
+    return result.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const deleteCourse = async (id) => {
+  try {
+    const result = await axios.delete(`/courses/${id}`);
+    return result.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
