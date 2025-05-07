@@ -151,6 +151,21 @@ const updateCourse = async (req, res, next) => {
   }
 };
 
+const deleteCourse = async (req, res, next) => {
+  try {
+    const response = await Courses.findByIdAndDelete(req.params.courseId);
+
+    if (!response) {
+      return res.status(400).json("Cannot delete this course!");
+    }
+
+    res.status(200).json(response);
+    return response;
+  } catch (error) {
+    next(error);
+  }
+};
+
 //========================== CATEGORY ====================
 
 const getAllCategories = async (req, res, next) => {
@@ -304,6 +319,7 @@ module.exports = {
   getAllCourses,
   postNewCourse,
   updateCourse,
+  deleteCourse,
 
   getAllCategories,
   postNewCategory,
