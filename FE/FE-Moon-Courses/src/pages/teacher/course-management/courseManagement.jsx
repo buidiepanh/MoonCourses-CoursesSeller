@@ -16,6 +16,7 @@ import {
   getAllCategories,
   getAuthenticatedUser,
   postNewCourse,
+  postNewCourseContent,
   updateCourse,
 } from "../../../services/apiServices";
 import toast from "react-hot-toast";
@@ -25,6 +26,9 @@ const { Option } = Select;
 
 const CourseManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [contentModal, setContentModal] = useState(false);
+  const [contentForm] = Form.useForm();
+  const [courseId, setCourseId] = useState("");
   const [teacherId, setTeacherId] = useState("");
   const [courses, setCourses] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -118,7 +122,6 @@ const CourseManagement = () => {
 
   const handleSubmit = async () => {
     const values = form.getFieldValue();
-    console.log(values);
     if (!isUpdate) {
       handleAddNewCourse();
     } else {
@@ -145,6 +148,30 @@ const CourseManagement = () => {
     }
 
     closeModal();
+  };
+
+  const handleSubmitContent = async (courseId) => {
+    const values = contentForm.getFieldValue();
+    try {
+      const result = await postNewCourseContent(
+        courseId,
+        values.title,
+        values.theory,
+        values.video
+      );
+
+      if (result) {
+        toast.success("Add content to course success!");
+        setContentModal(false);
+      } else {
+        toast.error("Add content to course failed!");
+        setContentModal(false);
+      }
+
+      contentForm.resetFields();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const columns = [
@@ -187,6 +214,7 @@ const CourseManagement = () => {
     {
       title: "Actions",
       key: "actions",
+      align: "center",
       render: (_, record) => (
         <Space>
           <Button
@@ -200,6 +228,16 @@ const CourseManagement = () => {
             type="link"
             danger
           />
+          <Button
+            type="primary"
+            onClick={() => {
+              setContentModal(true);
+              setCourseId(record._id);
+              contentForm.resetFields();
+            }}
+          >
+            + Content
+          </Button>
         </Space>
       ),
     },
@@ -286,6 +324,39 @@ const CourseManagement = () => {
                 </Option>
               ))}
             </Select>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/*==================Content Modal================ */}
+      <Modal
+        title="Add Content"
+        visible={contentModal}
+        onCancel={() => setContentModal(false)}
+        onOk={() => handleSubmitContent(courseId)}
+        okText="Add"
+      >
+        <Form form={contentForm} layout="vertical">
+          <Form.Item
+            label="Title"
+            name="title"
+            rules={[{ required: true, message: "Please enter content title" }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            label="Theory"
+            name="theory"
+            rules={[{ required: true, message: "Please enter theory" }]}
+          >
+            <Input.TextArea rows={4} />
+          </Form.Item>
+          <Form.Item
+            label="Video URL"
+            name="video"
+            rules={[{ required: true, message: "Please enter video URL" }]}
+          >
+            <Input />
           </Form.Item>
         </Form>
       </Modal>

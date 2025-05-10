@@ -172,3 +172,17 @@ export const deleteCourse = async (id) => {
     console.log(error);
   }
 };
+
+export const postNewCourseContent = async (id, name, theo, vid) => {
+  try {
+    const result = await axios.post("/contents", {
+      title: name,
+      theory: theo,
+      video: vid,
+      course: id,
+    });
+    return result.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
